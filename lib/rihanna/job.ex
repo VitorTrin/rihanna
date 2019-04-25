@@ -207,7 +207,9 @@ defmodule Rihanna.Job do
 
   defp filter_term_list(mod: mod, fun: fun) when not is_nil(mod) and not is_nil(fun) do
     Enum.flat_map(retrieve_all_jobs(), fn [id, binary] ->
-      if match?({^mod, ^fun}, :erlang.binary_to_term(binary)) do
+      term = :erlang.binary_to_term(binary)
+
+      if match?({^mod, ^fun, _}, term) or match?({^mod, ^fun}, term) do
         [id]
       else
         []
@@ -217,7 +219,9 @@ defmodule Rihanna.Job do
 
   defp filter_term_list(mod: mod) when not is_nil(mod) do
     Enum.flat_map(retrieve_all_jobs(), fn [id, binary] ->
-      if match?({^mod, _}, :erlang.binary_to_term(binary)) do
+      term = :erlang.binary_to_term(binary)
+
+      if match?({^mod, _, _}, term) or match?({^mod, _}, term) do
         [id]
       else
         []
@@ -227,7 +231,9 @@ defmodule Rihanna.Job do
 
   defp filter_term_list(fun: fun) when not is_nil(fun) do
     Enum.flat_map(retrieve_all_jobs(), fn [id, binary] ->
-      if match?({_, ^fun}, :erlang.binary_to_term(binary)) do
+      term = :erlang.binary_to_term(binary)
+
+      if match?({_, ^fun, _}, term) or match?({_, ^fun}, term) do
         [id]
       else
         []
@@ -235,7 +241,7 @@ defmodule Rihanna.Job do
     end)
   end
 
-  defp retrieve_all_jobs do
+  def retrieve_all_jobs do
     {:ok, result} =
       producer_query(
         """
